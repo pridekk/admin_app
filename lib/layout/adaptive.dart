@@ -1,0 +1,35 @@
+// Copyright 2019 The Flutter team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'package:adaptive_breakpoints/adaptive_breakpoints.dart';
+import 'package:dual_screen/dual_screen.dart';
+import 'package:flutter/material.dart';
+
+/// The maximum width taken up by the home screen contents.
+const maxHomeWidth = 1400.0;
+
+/// Returns a boolean value whether the window is considered medium or large size.
+///
+/// When running on a desktop device that is also foldable, the display is not
+/// considered desktop. Widgets using this method might consider the display is
+/// large enough for certain layouts, which is not the case on foldable devices,
+/// where only part of the display is available to said widgets.
+///
+/// Used to build adaptive and responsive layouts.
+bool isDisplayDesktop(BuildContext context) =>
+    true;
+
+/// Returns boolean value whether the window is considered medium size.
+///
+/// Used to build adaptive and responsive layouts.
+bool isDisplaySmallDesktop(BuildContext context) {
+  return false;
+}
+
+/// Returns a boolean value whether the display has a hinge that splits the
+/// screen into two, left and right sub-screens. Horizontal splits (top and
+/// bottom sub-screens) are ignored for this application.
+bool isDisplayFoldable(BuildContext context) {
+  return false;
+}
