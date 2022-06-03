@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 
 // Define a custom Form widget.
 class PromotionCodeForm extends StatefulWidget {
-  const PromotionCodeForm({super.key});
+  const PromotionCodeForm
+
+  ({super.key});
 
   @override
   PromotionCodeFormState createState() {
@@ -19,7 +23,10 @@ class PromotionCodeFormState extends State<PromotionCodeForm> {
   // Note: This is a `GlobalKey<FormState>`,
   // not a GlobalKey<MyCustomFormState>.
   final _formKey = GlobalKey<FormState>();
-  late String code  = '';
+  String _code = '';
+  DateTime _startTime = DateTime.now();
+  DateTime _expireTime = DateTime.now();
+  bool _enabled = false;
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
@@ -36,7 +43,7 @@ class PromotionCodeFormState extends State<PromotionCodeForm> {
                     padding: EdgeInsets.all(8.0),
                     child: TextFormField(
                       decoration: const InputDecoration(
-                        hintText: '코드 입력',
+                        hintText: '코드 입력1',
                       ),
                       validator: (String? value) {
                         if (value == null || value.isEmpty) {
@@ -45,18 +52,96 @@ class PromotionCodeFormState extends State<PromotionCodeForm> {
                         return null;
                       },
                       onSaved: (value) {
-                        code = value!;
+                        _code = value!;
                       },
                       onChanged: (value) {
-                        code = value;
+                        _code = value;
                       },
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: InputDatePickerFormField(
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.utc(2030,12,31),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("${dotenv.env['MODE']}시작일"),
+                        Text(DateFormat("yyyy-MM-dd").format(_startTime)),
+                        IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          onPressed: () async {
+                            var selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _startTime,
+                              firstDate: DateTime(2022),
+                              lastDate: DateTime(2030),
+                            );
+
+                            setState(() {
+                              if(selectedDate != null){
+                                _startTime = selectedDate;
+                              }
+                              
+                            });
+
+                          },
+                        ),
+                        // TextFormField(
+                        //   initialValue: DateFormat("yyyy-MM-dd").format(_dateTime),
+                        // ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("종료일"),
+                        Text(DateFormat("yyyy-MM-dd").format(_expireTime)),
+                        IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          onPressed: () async {
+                            var selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _expireTime,
+                              firstDate: DateTime(2022),
+                              lastDate: DateTime(2030),
+                            );
+                            setState(() {
+                              if(selectedDate != null){
+                                _expireTime = selectedDate;
+                              }
+
+                            });
+                          },
+                        ),
+                        // TextFormField(
+                        //   initialValue: DateFormat("yyyy-MM-dd").format(_dateTime),
+                        // ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+
+                        const Text("활성화"),
+                        const SizedBox(
+                          width: 40.0,
+                        ),
+                        Checkbox(
+                          value: _enabled,
+                          onChanged: (value) async {
+                            setState(() {
+                              if(value != null){
+                                _enabled = value;
+                              }
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
@@ -68,7 +153,7 @@ class PromotionCodeFormState extends State<PromotionCodeForm> {
                         // the form is invalid.
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          debugPrint(code);
+                          debugPrint(_code);
                         }
                       },
                     ),
@@ -79,5 +164,10 @@ class PromotionCodeFormState extends State<PromotionCodeForm> {
           ],
         ),
       );
+  }
+
+  Future<bool> _addPromotionCode() async {
+      return true;
+
   }
 }

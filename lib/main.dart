@@ -1,22 +1,44 @@
 import 'package:admin_app/screens/promotion_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_sidemenu/easy_sidemenu.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+
+Future<void> main() async {
+
+  if(kDebugMode){
+    await dotenv.load(
+      fileName: '.env.development'
+    );
+  }else if(kProfileMode){
+    await dotenv.load(
+        fileName: '.env.staging'
+    );
+  }else {
+    await dotenv.load(
+        fileName: '.env.production'
+    );
+  }
+
+  print(dotenv.env['MODE']);
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'easy_sidemenu Demo',
+      title: 'SPEC ADMIN',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'easy_sidemenu Demo'),
+      home: const MyHomePage(
+          title: 'SPEC ADMIN'
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -38,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('${widget.title}-${dotenv.env["MODE"]}'),
         centerTitle: true,
       ),
       body: Row(
