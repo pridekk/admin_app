@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:admin_app/screens/filebase_login_screen.dart';
 import 'package:admin_app/screens/promotion_codes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_sidemenu/easy_sidemenu.dart';
@@ -73,27 +76,68 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   PageController page = PageController();
 
-  late AdminInfo _adminInfoProvider;
+  bool isLoggedIn = false;
+
+  late StreamSubscription<User?> user;
+
+  @override
+  void initState() {
+    super.initState();
+    user = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user == null) {
+        print('User is currently signed out!');
+        setState(() {
+          isLoggedIn = false;
+        });
+
+      } else {
+        print('User is signed in!');
+        setState(() {
+          isLoggedIn = true;
+        });
+
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    user.cancel();
+    super.dispose();
+  }
+  void logout() async {
+    await FirebaseAuth.instance.signOut();
+  }
 
   @override
   Widget build(BuildContext context) {
-    _adminInfoProvider = Provider.of<AdminInfo>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.title}-${dotenv.env["MODE"]}'),
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                // _auth.signOut();
+                // Navigator.pop(context);
+                logout();
+                //   getMessages();
+                //Implement logout functionality
+              }),
+        ],
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          if(!_adminInfoProvider.isLoggedIn)
+          if(!isLoggedIn)
             Container(
-
-                        width: MediaQuery.of(context).size.width,
-                        height: 600,
-                        child: LoginSignupScreen(),
-                    ),
-          if(_adminInfoProvider.isLoggedIn)
+                width: MediaQuery.of(context).size.width,
+                height: 600,
+                child:
+                LoginSignupScreen(),
+            ),
+          if(isLoggedIn)
             SideMenu(
               controller: page,
               onDisplayModeChanged: (mode) {
@@ -184,7 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
-          if(_adminInfoProvider.isLoggedIn)
+          if(isLoggedIn)
             Expanded(
               child: PageView(
                 controller: page,
