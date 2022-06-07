@@ -1,12 +1,12 @@
-import 'dart:html';
-
+import 'package:admin_app/config/palette.dart';
 import 'package:admin_app/models/promotion_code.dart';
+import 'package:admin_app/screens/promotion_users.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../components/Promtion_code_form.dart';
+import '../components/promotion_code_form.dart';
 import '../components/promotion_code_item.dart';
 
 class PromotionCodes extends StatefulWidget {
@@ -31,7 +31,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
         codes = value;
       });
     }, onError: (e) {
-      debugPrint(e);
+      debugPrint(e.toString());
       Fluttertoast.showToast(
           msg: e.toString(),
           toastLength: Toast.LENGTH_LONG,
@@ -47,9 +47,8 @@ class _PromotionCodesState extends State<PromotionCodes> {
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
 
-    print("build PromotionCode");
+    debugPrint("build PromotionCode");
     return Column(
       children: [
         Row(
@@ -70,17 +69,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
                 icon: const Icon(Icons.add_circle))
           ],
         ),
-        _getDataTable(codes),
-        // ListView.builder(
-        //     scrollDirection: Axis.vertical,
-        //     shrinkWrap: true,
-        //     itemCount: codes.length,
-        //     itemBuilder: (BuildContext ctx, int index) {
-        //       return Container(
-        //         height: 50,
-        //         child: Center(child: PromotionCodeItem(code: codes[index])),
-        //       );
-        //     }),
+        Expanded(child: _getDataTable(codes)),
       ],
     );
   }
@@ -119,7 +108,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
   Widget _getDataTable(List<PromotionCode> listOfData) {
     if (listOfData.length == 0) {
       return Container(
-        child: Text("Loading..."),
+        child: const Text("Loading..."),
       );
     }
 
@@ -149,7 +138,28 @@ class _PromotionCodesState extends State<PromotionCodes> {
           ),
         ),
         DataCell(
-          Text("${row.users}"),
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                      context,
+                      PromotionUsersScreen.routeName,
+                      arguments: row
+                  );
+
+                },
+                child: Text(
+                  "${row.users}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Palette.activeColor,
+                  ),
+
+
+                )
+            ),
+          ),
         ),
       ]));
     });
@@ -158,7 +168,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
       sortColumnIndex: _currentSortColumn,
       sortAscending: _isAscending,
       columns: [
-        DataColumn(
+        const DataColumn(
           label: Text('Code'),
         ),
         DataColumn(
@@ -180,13 +190,13 @@ class _PromotionCodesState extends State<PromotionCodes> {
                 }
               });
             }),
-        DataColumn(
+        const DataColumn(
           label: Text('만료일'),
         ),
-        DataColumn(
+        const DataColumn(
           label: Text('활성화'),
         ),
-        DataColumn(
+        const DataColumn(
           label: Text('등록수'),
         ),
       ],

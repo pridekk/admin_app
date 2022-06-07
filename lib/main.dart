@@ -1,14 +1,17 @@
 import 'dart:async';
 
+import 'package:admin_app/models/promotion_code.dart';
 import 'package:admin_app/screens/filebase_login_screen.dart';
+import 'package:admin_app/screens/pin_plays_screen.dart';
 import 'package:admin_app/screens/promotion_codes.dart';
+import 'package:admin_app/screens/promotion_users.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'firebase_options.dart';
+import 'package:admin_app/firebase_options.dart';
 import 'package:provider/provider.dart';
 
 import 'models/admin_info.dart';
@@ -55,9 +58,17 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
-          home: const MyHomePage(
-            title: 'SPEC ADMIN'
-            ),
+          onGenerateRoute: (settings){
+            if(settings.name == PromotionUsersScreen.routeName){
+              final PromotionCode code = settings.arguments as PromotionCode;
+
+              return MaterialPageRoute(
+                  builder: (context) {
+                    return PromotionUsersScreen(promotionCode: code);
+                  });
+            }
+          },
+          home: const MyHomePage(title: "Spec Admin",),
           debugShowCheckedModeBanner: false,
         )
       );
@@ -112,8 +123,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       appBar: AppBar(
         title: Text('${widget.title}-${dotenv.env["MODE"]}'),
+        elevation: 0,
         centerTitle: true,
         actions: <Widget>[
           IconButton(
@@ -128,14 +141,17 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if(!isLoggedIn)
-            Container(
-                width: MediaQuery.of(context).size.width,
-                height: 600,
-                child:
-                LoginSignupScreen(),
+            Center(
+              child: Container(
+                  width: 300,
+                  height: 600,
+                  child:
+                  LoginSignupScreen(),
+              ),
             ),
           if(isLoggedIn)
             SideMenu(
@@ -154,23 +170,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 // ),
                 // backgroundColor: Colors.blueGrey[700]
               ),
-              title: Column(
-                children: [
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxHeight: 150,
-                      maxWidth: 150,
-                    ),
-                    child: Image.asset(
-                      '/images/271.png',
-                    ),
-                  ),
-                  const Divider(
-                    indent: 8.0,
-                    endIndent: 8.0,
-                  ),
-                ],
-              ),
               footer: const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
@@ -181,20 +180,20 @@ class _MyHomePageState extends State<MyHomePage> {
               items: [
                 SideMenuItem(
                   priority: 0,
-                  title: '프로모션',
+                  title: '핀플레이',
                   onTap: () {
                     page.jumpToPage(0);
                   },
-                  icon: const Icon(Icons.ads_click),
-
+                  icon: const Icon(Icons.pin_drop ),
                 ),
                 SideMenuItem(
                   priority: 1,
-                  title: 'Users',
+                  title: '프로모션',
                   onTap: () {
                     page.jumpToPage(1);
                   },
-                  icon: const Icon(Icons.supervisor_account),
+                  icon: const Icon(Icons.ads_click),
+
                 ),
                 SideMenuItem(
                   priority: 2,
@@ -230,58 +229,57 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           if(isLoggedIn)
             Expanded(
-              child: PageView(
-                controller: page,
-                children: [
-                  Container(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: const Center(
-                          child: PromotionCodes()
+              child: SizedBox(
+                child: PageView(
+
+                  controller: page,
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: const Center(
+                            child: PinPlaysScreen()
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(30.0),
+                    Container(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(30.0),
+                        child: PromotionCodes()
+
+                      ),
+                    ),
+                    Container(
+                      color: Colors.white,
                       child: const Center(
                         child: Text(
-                          'Users',
+                          'Files',
                           style: TextStyle(fontSize: 35),
                         ),
                       ),
                     ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: const Center(
-                      child: Text(
-                        'Files',
-                        style: TextStyle(fontSize: 35),
+                    Container(
+                      color: Colors.white,
+                      child: const Center(
+                        child: Text(
+                          'Download',
+                          style: TextStyle(fontSize: 35),
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: const Center(
-                      child: Text(
-                        'Download',
-                        style: TextStyle(fontSize: 35),
+                    Container(
+                      color: Colors.white,
+                      child: const Center(
+                        child: Text(
+                          'Settings',
+                          style: TextStyle(fontSize: 35),
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: const Center(
-                      child: Text(
-                        'Settings',
-                        style: TextStyle(fontSize: 35),
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 

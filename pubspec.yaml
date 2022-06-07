@@ -47,6 +47,10 @@ dependencies:
   firebase_core: ^1.17.1
   firebase_auth: ^3.3.19
   provider: ^6.0.3
+  timeline_tile: ^2.0.0
+  timelines: ^0.1.0
+  countup: ^0.1.4
+  flutter_tags: ^1.0.0-nullsafety.1
 
 dev_dependencies:
   flutter_test:
