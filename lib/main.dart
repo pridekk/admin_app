@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:admin_app/models/promotion_code.dart';
 import 'package:admin_app/screens/filebase_login_screen.dart';
 import 'package:admin_app/screens/pin_plays_screen.dart';
-import 'package:admin_app/screens/promotion_codes.dart';
-import 'package:admin_app/screens/promotion_users.dart';
+import 'package:admin_app/screens/promotion_codes_screen.dart';
+import 'package:admin_app/screens/promotion_users_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -88,11 +88,12 @@ class _MyHomePageState extends State<MyHomePage> {
   PageController page = PageController();
 
   bool isLoggedIn = false;
+  String token = '';
 
   late StreamSubscription<User?> user;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     user = FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user == null) {
@@ -103,8 +104,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
       } else {
         print('User is signed in!');
-        setState(() {
-          isLoggedIn = true;
+
+        user.getIdToken().then((value){
+          debugPrint("User Token: $value");
+          setState(() {
+            isLoggedIn = true;
+            token = value;
+          });
+          context.read<AdminInfo>().token = value;
         });
 
       }

@@ -191,7 +191,7 @@ class _PinPlaysScreenState extends State<PinPlaysScreen> {
   Future<List<PinPlay>> _getPinPlays() async {
     List<PinPlay> result = <PinPlay>[];
 
-    var url = Uri.parse('${baseUrl!}/api/v1/pinplays');
+    var url = Uri.parse('${baseUrl!}/v3/pinplays');
 
     var response = await http.get(url);
 
@@ -204,59 +204,4 @@ class _PinPlaysScreenState extends State<PinPlaysScreen> {
     return result;
   }
 
-  Widget _getDataTable(List<PinPlay> listOfData) {
-    if (listOfData.length == 0) {
-      return Container(
-        child: const Text("Loading..."),
-      );
-    }
-
-    List<DataRow> rows = [];
-
-    listOfData.forEach((row) {
-      rows.add(DataRow(cells: [
-        DataCell(
-          Text(row.id.toString()),
-        ),
-        DataCell(
-          Text(row.startedAt),
-        ),
-        DataCell(
-          Text(row.endAt),
-        ),
-      ]));
-    });
-    return DataTable(
-      sortColumnIndex: _currentSortColumn,
-      sortAscending: _isAscending,
-      columns: [
-        const DataColumn(
-          label: Text('id'),
-        ),
-        DataColumn(
-            label: Text('시작일'),
-            // Sorting function
-            onSort: (columnIndex, _) {
-              setState(() {
-                _currentSortColumn = columnIndex;
-                if (_isAscending == true) {
-                  _isAscending = false;
-                  // sort the product list in Ascending, order by Price
-                  plays.sort((productA, productB) =>
-                      productB.startedAt.compareTo(productA.startedAt));
-                } else {
-                  _isAscending = true;
-                  // sort the product list in Descending, order by Price
-                  plays.sort((productA, productB) =>
-                      productA.startedAt.compareTo(productB.startedAt));
-                }
-              });
-            }),
-        const DataColumn(
-          label: Text('종료일'),
-        )
-      ],
-      rows: rows,
-    );
-  }
 }
