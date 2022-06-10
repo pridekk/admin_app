@@ -191,7 +191,7 @@ class _PinPlaysScreenState extends State<PinPlaysScreen> {
   Future<List<PinPlay>> _getPinPlays() async {
     List<PinPlay> result = <PinPlay>[];
 
-    var url = Uri.parse('${baseUrl!}/v3/pinplays');
+    var url = Uri.parse('${baseUrl!}/api/v3/pinplays');
 
     var response = await http.get(url);
 

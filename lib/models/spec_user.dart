@@ -30,4 +30,9 @@ class SpecUser {
 
     return SpecUser(userId: userId, username: username, nickname: nickname, email: email, image: image);
   }
+
+  @override
+  String toString() {
+    return "$userId, $username, $nickname, $email, $promotionDate";
+  }
 }

@@ -68,7 +68,16 @@ class MyApp extends StatelessWidget {
                   });
             }
           },
-          home: const MyHomePage(title: "Spec Admin",),
+          routes: {
+            "/":  (context) => const MyHomePage(title: "Spec Admin",),
+            "/promotion_code_detail": (context){
+              var code = PromotionCode(id:34, code:"text", startedAt: "2022-05-30",
+                  expiredAt: "2022-09-01", users: 30, enabled: true, userList: [], description: "");
+              return PromotionUsersScreen(promotionCode: code);
+            },
+          },
+          initialRoute: "/",
+
           debugShowCheckedModeBanner: false,
         )
       );
@@ -129,170 +138,168 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    Widget main;
+
+    if(!isLoggedIn){
+      main = Center(
+        child: Container(
+          width: 300,
+          height: 600,
+          child:
+          LoginSignupScreen(),
+        ),
+      );
+    } else {
+      main =Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SideMenu(
+            controller: page,
+            onDisplayModeChanged: (mode) {
+              print(mode);
+            },
+            style: SideMenuStyle(
+              displayMode: SideMenuDisplayMode.auto,
+              hoverColor: Colors.blue[100],
+              selectedColor: Colors.lightBlue,
+              selectedTitleTextStyle: const TextStyle(color: Colors.white),
+              selectedIconColor: Colors.white,
+              // decoration: BoxDecoration(
+              //   borderRadius: BorderRadius.all(Radius.circular(10)),
+              // ),
+              // backgroundColor: Colors.blueGrey[700]
+            ),
+            footer: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'pridekk@gmail.com',
+                style: TextStyle(fontSize: 15),
+              ),
+            ),
+            items: [
+              SideMenuItem(
+                priority: 0,
+                title: '프로모션',
+                onTap: () {
+                  page.jumpToPage(0);
+                },
+                icon: const Icon(Icons.ads_click),
+              ),
+              SideMenuItem(
+                priority: 1,
+                title: '핀플레이',
+                onTap: () {
+                  page.jumpToPage(1);
+                },
+                icon: const Icon(Icons.pin_drop),
+              ),
+
+              SideMenuItem(
+                priority: 2,
+                title: 'Files',
+                onTap: () {
+                  page.jumpToPage(2);
+                },
+                icon: const Icon(Icons.file_copy_rounded),
+              ),
+              SideMenuItem(
+                priority: 3,
+                title: 'Download',
+                onTap: () {
+                  page.jumpToPage(3);
+                },
+                icon: const Icon(Icons.download),
+              ),
+              SideMenuItem(
+                priority: 4,
+                title: 'Settings',
+                onTap: () {
+                  page.jumpToPage(4);
+                },
+                icon: const Icon(Icons.settings),
+              ),
+              SideMenuItem(
+                priority: 6,
+                title: 'Logout',
+                onTap: () async {
+                  logout();
+                },
+                icon: const Icon(Icons.exit_to_app),
+              ),
+            ],
+          ),
+          Expanded(
+            child: SizedBox(
+              child: PageView(
+
+                controller: page,
+                children: [
+
+                  Container(
+                    color: Colors.white,
+                    child: Padding(
+                        padding: const EdgeInsets.all(30.0),
+                        child: PromotionCodes()
+
+                    ),
+                  ),
+                  Container(
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: const Center(
+                          child: PinPlaysScreen()
+                      ),
+                    ),
+                  ),
+                  Container(
+                    color: Colors.white,
+                    child: const Center(
+                      child: Text(
+                        'Files',
+                        style: TextStyle(fontSize: 35),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    color: Colors.white,
+                    child: const Center(
+                      child: Text(
+                        'Download',
+                        style: TextStyle(fontSize: 35),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    color: Colors.white,
+                    child: const Center(
+                      child: Text(
+                        'Settings',
+                        style: TextStyle(fontSize: 35),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+
+        ],
+      );
+    }
+
+
     return Scaffold(
 
       appBar: AppBar(
         title: Text('${widget.title}-${dotenv.env["MODE"]}'),
         elevation: 0,
         centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                // _auth.signOut();
-                // Navigator.pop(context);
-                logout();
-                //   getMessages();
-                //Implement logout functionality
-              }),
-        ],
       ),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if(!isLoggedIn)
-            Center(
-              child: Container(
-                  width: 300,
-                  height: 600,
-                  child:
-                  LoginSignupScreen(),
-              ),
-            ),
-          if(isLoggedIn)
-            SideMenu(
-              controller: page,
-              onDisplayModeChanged: (mode) {
-                print(mode);
-              },
-              style: SideMenuStyle(
-                displayMode: SideMenuDisplayMode.auto,
-                hoverColor: Colors.blue[100],
-                selectedColor: Colors.lightBlue,
-                selectedTitleTextStyle: const TextStyle(color: Colors.white),
-                selectedIconColor: Colors.white,
-                // decoration: BoxDecoration(
-                //   borderRadius: BorderRadius.all(Radius.circular(10)),
-                // ),
-                // backgroundColor: Colors.blueGrey[700]
-              ),
-              footer: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'pridekk@gmail.com',
-                  style: TextStyle(fontSize: 15),
-                ),
-              ),
-              items: [
-                SideMenuItem(
-                  priority: 0,
-                  title: '핀플레이',
-                  onTap: () {
-                    page.jumpToPage(0);
-                  },
-                  icon: const Icon(Icons.pin_drop ),
-                ),
-                SideMenuItem(
-                  priority: 1,
-                  title: '프로모션',
-                  onTap: () {
-                    page.jumpToPage(1);
-                  },
-                  icon: const Icon(Icons.ads_click),
-
-                ),
-                SideMenuItem(
-                  priority: 2,
-                  title: 'Files',
-                  onTap: () {
-                    page.jumpToPage(2);
-                  },
-                  icon: const Icon(Icons.file_copy_rounded),
-                ),
-                SideMenuItem(
-                  priority: 3,
-                  title: 'Download',
-                  onTap: () {
-                    page.jumpToPage(3);
-                  },
-                  icon: const Icon(Icons.download),
-                ),
-                SideMenuItem(
-                  priority: 4,
-                  title: 'Settings',
-                  onTap: () {
-                    page.jumpToPage(4);
-                  },
-                  icon: const Icon(Icons.settings),
-                ),
-                SideMenuItem(
-                  priority: 6,
-                  title: 'Exit',
-                  onTap: () async {},
-                  icon: const Icon(Icons.exit_to_app),
-                ),
-              ],
-            ),
-          if(isLoggedIn)
-            Expanded(
-              child: SizedBox(
-                child: PageView(
-
-                  controller: page,
-                  children: [
-                    Container(
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: const Center(
-                            child: PinPlaysScreen()
-                        ),
-                      ),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: PromotionCodes()
-
-                      ),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: const Center(
-                        child: Text(
-                          'Files',
-                          style: TextStyle(fontSize: 35),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: const Center(
-                        child: Text(
-                          'Download',
-                          style: TextStyle(fontSize: 35),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: const Center(
-                        child: Text(
-                          'Settings',
-                          style: TextStyle(fontSize: 35),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-
-        ],
-      ),
+      body:  main
     );
   }
 }

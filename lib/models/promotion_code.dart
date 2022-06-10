@@ -1,5 +1,6 @@
+import 'package:admin_app/components/simple_bar_chart.dart';
 import 'package:admin_app/models/spec_user.dart';
-
+import 'package:charts_flutter/flutter.dart' as charts;
 class PromotionCode {
   PromotionCode({
     required this.id,
@@ -53,4 +54,39 @@ class PromotionCode {
         'description': description,
         'enabled': enabled,
       };
+
+  List<charts.Series<dynamic, DateTime>> getChartData(){
+
+
+    List<TimeSeriesCount> data = [];
+    Map<String, int> count = {};
+    for(SpecUser user in userList){
+      if(user.promotionDate != null){
+        if(count.containsKey(user.promotionDate)){
+          count[user.promotionDate!] = count[user.promotionDate!]! + 1;
+        } else {
+          count[user.promotionDate!] = 1;
+        }
+      }
+    }
+    count.forEach((key, value) {
+      data.add(TimeSeriesCount(DateTime.parse(key), value));
+    });
+    return [
+      charts.Series<TimeSeriesCount, DateTime>(
+        id: 'Promotion 등록 현황',
+        domainFn: (TimeSeriesCount sales, _) => sales.time,
+        measureFn: (TimeSeriesCount sales, _) => sales.count,
+        data: data,
+      )
+    ];
+  }
+
+  String getClipboardUserData(){
+    var data = "";
+    for(SpecUser user in userList){
+      data += user.toString();
+    }
+    return data;
+  }
 }

@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 
 import '../components/promotion_code_form.dart';
-import '../components/promotion_code_item.dart';
 
 class PromotionCodes extends StatefulWidget {
   const PromotionCodes({Key? key}) : super(key: key);
@@ -92,7 +91,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
   Future<List<PromotionCode>> _getPromotionCodeList() async {
     List<PromotionCode> result = <PromotionCode>[];
 
-    var url = Uri.parse('$baseUrl/v3/promotions');
+    var url = Uri.parse('$baseUrl/api/v3/promotions');
 
     var response = await http.get(url, headers: {HttpHeaders.authorizationHeader: "Bearer $token"});
 

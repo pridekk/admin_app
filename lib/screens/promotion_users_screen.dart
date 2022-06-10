@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:admin_app/components/simple_bar_chart.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,19 +8,17 @@ import 'package:admin_app/models/promotion_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:dio/dio.dart';
+import '../config/palette.dart';
 import '../models/admin_info.dart';
 import '../models/spec_user.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:url_launcher/url_launcher.dart';
-var dio = Dio();
+
 
 class PromotionUsersScreen extends StatefulWidget {
   const PromotionUsersScreen({Key? key, required this.promotionCode}) : super(key: key);
   static const routeName = '/promotion_users';
 
   final PromotionCode promotionCode;
+
   @override
   State<PromotionUsersScreen> createState() => _PromotionUsersScreenState();
 }
@@ -29,6 +29,7 @@ class _PromotionUsersScreenState extends State<PromotionUsersScreen> {
 
   PromotionCode? promotionCode;
   String token = "";
+  var filteredDate = "";
 
   @override
   Widget build(BuildContext context) {
@@ -54,12 +55,17 @@ class _PromotionUsersScreenState extends State<PromotionUsersScreen> {
     }
     double width = MediaQuery.of(context).size.width;
     Widget gridView;
+    Widget chart;
     debugPrint("${promotionCode?.users}");
     if(promotionCode == null){
       gridView = Center(child: const CircularProgressIndicator());
+      chart = Center(child: const CircularProgressIndicator());
     } else {
       List<Widget> items = [];
       for(SpecUser user in promotionCode!.userList ){
+        if(filteredDate.isNotEmpty && user.promotionDate != filteredDate){
+            continue;
+        }
         debugPrint("adding ${user.username}");
         Widget item =
         SizedBox(
@@ -124,6 +130,8 @@ class _PromotionUsersScreenState extends State<PromotionUsersScreen> {
         crossAxisCount: width > 1000 ? 4 : 1,
         children: items,
       );
+
+      chart = SelectionCallbackExample.withData(promotionCode!.getChartData(),filterByDate);
     }
 
     return Scaffold(
@@ -138,34 +146,69 @@ class _PromotionUsersScreenState extends State<PromotionUsersScreen> {
             flex: 1,
 
             child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text("참여자수: ${widget.promotionCode.users}"),
-                ),
-                IconButton(
-                    onPressed: ()  async {
-                      debugPrint("Auth: Bearer ${token.substring(0,10)}");
-                      if(kIsWeb){
-                        var _url = Uri.parse( '$baseUrl/v3/promotions/${widget.promotionCode.id}');
-                        token = "Bearer $token";
-                        if (!await launchUrl(_url,
-                          webViewConfiguration: WebViewConfiguration(
-                            enableDomStorage: false,
-                            enableJavaScript: false,
-                            headers: <String, String>{'Authorization': token}
-                          ),)) throw 'Could not launch $_url';
-                      } else {
-                        var tempDir = await getTemporaryDirectory();
-                        String fullPath = tempDir.path + "/boo2.pdf'";
-                        print('full path ${fullPath}');
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                        download2(dio, '$baseUrl/v3/promotions/${widget.promotionCode.id}', fullPath);
-                      }
-                    },
-                    icon: const Icon(Icons.add_circle))
+              children: [
+
+                Padding(
+                  padding: const EdgeInsets.only(left:8.0),
+                  child:
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text("참여자수: ${widget.promotionCode.users} "),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text("참여기간: ${widget.promotionCode.startedAt} ~${widget.promotionCode.expiredAt ?? ""} "),
+                      ),
+                    ],
+                  ),
+                ),
+
+
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Row(
+                    children: [
+                      IconButton(
+                          onPressed: ()  async {
+                            setState(() {
+                              filteredDate = "";
+                            });
+                          },
+                          tooltip: "필터 초기화",
+                          icon: const Icon(Icons.restart_alt)
+                      ),
+                      IconButton(
+                          onPressed: ()  async {
+
+                            Clipboard.setData(ClipboardData(text: promotionCode!.getClipboardUserData()));
+                            Fluttertoast.showToast(
+                                msg: "Copied!",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 3,
+                                backgroundColor: Palette.backgroundColor,
+                                textColor: Colors.white,
+                                fontSize: 24.0,
+                                webShowClose: true,
+                                webPosition: "center");
+                          },
+                          tooltip: "전체 사용자 Clipboard COPY",
+                          icon: const Icon(Icons.copy_all_outlined)
+                      ),
+                    ],
+                  ),
+                )
               ],
             )
+          ),
+          Expanded(
+            flex: 3,
+
+            child: chart
           ),
           const Divider(
             thickness: 3,
@@ -180,7 +223,7 @@ class _PromotionUsersScreenState extends State<PromotionUsersScreen> {
 
   Future<PromotionCode> _getPromotionCode(int id) async {
 
-    var url = Uri.parse('$baseUrl/v3/promotions/$id');
+    var url = Uri.parse('$baseUrl/api/v3/promotions/$id');
 
     var response = await http.get(url, headers: {HttpHeaders.authorizationHeader: "Bearer $token"});
 
@@ -189,38 +232,13 @@ class _PromotionUsersScreenState extends State<PromotionUsersScreen> {
     return (PromotionCode.fromJson(code));
 
   }
-  Future download2(Dio dio, String url, String savePath) async {
-    try {
-      Response response = await dio.get(
-        url,
-        onReceiveProgress: showDownloadProgress,
-        //Received data with List<int>
-        options: Options(
-            responseType: ResponseType.bytes,
-            followRedirects: false,
-            validateStatus: (status) {
-              if(status != null){
-                return status < 500;
-              } else {
-                return true;
-              }
 
-            }),
-      );
-      print(response.headers);
-      File file = File(savePath);
-      var raf = file.openSync(mode: FileMode.write);
-      // response.data is List<int> type
-      raf.writeFromSync(response.data);
-      await raf.close();
-    } catch (e) {
-      print(e);
-    }
+
+  void filterByDate(String date){
+    setState(() {
+      filteredDate = date;
+    });
   }
-  void showDownloadProgress(received, total) {
-    if (total != -1) {
-      print((received / total * 100).toStringAsFixed(0) + "%");
-    }
-  }
+
 }
 

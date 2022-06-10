@@ -32,136 +32,132 @@ class PromotionCodeFormState extends State<PromotionCodeForm> {
     // Build a Form widget using the _formKey created above.
     return
       AlertDialog(
-        content: Stack(
-          children: <Widget>[
-            Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: '코드 입력',
-                      ),
-                      validator: (String? value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        _code = value!;
-                      },
-                      onChanged: (value) {
-                        _code = value;
-                      },
-                    ),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: '코드 입력',
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("시작일"),
-                        Text(DateFormat("yyyy-MM-dd").format(_startTime)),
-                        IconButton(
-                          icon: Icon(Icons.calendar_today),
-                          onPressed: () async {
-                            var selectedDate = await showDatePicker(
-                              context: context,
-                              initialDate: _startTime,
-                              firstDate: DateTime(2022),
-                              lastDate: DateTime(2030),
-                            );
-
-                            setState(() {
-                              if(selectedDate != null){
-                                _startTime = selectedDate;
-                              }
-                              
-                            });
-
-                          },
-                        ),
-                        // TextFormField(
-                        //   initialValue: DateFormat("yyyy-MM-dd").format(_dateTime),
-                        // ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text("종료일"),
-                        Text(DateFormat("yyyy-MM-dd").format(_expireTime)),
-                        IconButton(
-                          icon: Icon(Icons.calendar_today),
-                          onPressed: () async {
-                            var selectedDate = await showDatePicker(
-                              context: context,
-                              initialDate: _expireTime,
-                              firstDate: DateTime(2022),
-                              lastDate: DateTime(2030),
-                            );
-                            setState(() {
-                              if(selectedDate != null){
-                                _expireTime = selectedDate;
-                              }
-
-                            });
-                          },
-                        ),
-                        // TextFormField(
-                        //   initialValue: DateFormat("yyyy-MM-dd").format(_dateTime),
-                        // ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-
-                        const Text("활성화"),
-                        const SizedBox(
-                          width: 40.0,
-                        ),
-                        Checkbox(
-                          value: _enabled,
-                          onChanged: (value) async {
-                            setState(() {
-                              if(value != null){
-                                _enabled = value;
-                              }
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      child: const Text("Submit"),
-                      onPressed: () {
-                        // Validate will return true if the form is valid, or false if
-                        // the form is invalid.
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          debugPrint(_code);
-                        }
-                      },
-                    ),
-                  )
-                ],
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _code = value!;
+                  },
+                  onChanged: (value) {
+                    _code = value;
+                  },
+                ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("시작일"),
+                    Text(DateFormat("yyyy-MM-dd").format(_startTime)),
+                    IconButton(
+                      icon: Icon(Icons.calendar_today),
+                      onPressed: () async {
+                        var selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: _startTime,
+                          firstDate: DateTime(2022),
+                          lastDate: DateTime(2030),
+                        );
+
+                        setState(() {
+                          if(selectedDate != null){
+                            _startTime = selectedDate;
+                          }
+
+                        });
+
+                      },
+                    ),
+                    // TextFormField(
+                    //   initialValue: DateFormat("yyyy-MM-dd").format(_dateTime),
+                    // ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("종료일"),
+                    Text(DateFormat("yyyy-MM-dd").format(_expireTime)),
+                    IconButton(
+                      icon: Icon(Icons.calendar_today),
+                      onPressed: () async {
+                        var selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: _expireTime,
+                          firstDate: DateTime(2022),
+                          lastDate: DateTime(2030),
+                        );
+                        setState(() {
+                          if(selectedDate != null){
+                            _expireTime = selectedDate;
+                          }
+
+                        });
+                      },
+                    ),
+                    // TextFormField(
+                    //   initialValue: DateFormat("yyyy-MM-dd").format(_dateTime),
+                    // ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+
+                    const Text("활성화"),
+                    const SizedBox(
+                      width: 40.0,
+                    ),
+                    Checkbox(
+                      value: _enabled,
+                      onChanged: (value) async {
+                        setState(() {
+                          if(value != null){
+                            _enabled = value;
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  child: const Text("Submit"),
+                  onPressed: () {
+                    // Validate will return true if the form is valid, or false if
+                    // the form is invalid.
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      debugPrint(_code);
+                    }
+                  },
+                ),
+              )
+            ],
+          ),
         ),
       );
   }
