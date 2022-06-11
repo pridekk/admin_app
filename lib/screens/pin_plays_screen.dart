@@ -39,10 +39,10 @@ class _PinPlaysScreenState extends State<PinPlaysScreen> {
           msg: e.toString(),
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
+          timeInSecForIosWeb: 3,
           backgroundColor: Colors.red,
           textColor: Colors.white,
-          fontSize: 24.0,
+          fontSize: 32.0,
           webShowClose: true,
           webPosition: "center");
     });

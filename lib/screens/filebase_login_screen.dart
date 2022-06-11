@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../config/palette.dart';
@@ -391,7 +392,18 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
           debugPrint("user is logged in");
         }
       }catch(e){
-        print(e);
+        debugPrint(e.toString());
+        Fluttertoast.showToast(
+            msg: e.toString(),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 32.0,
+            webShowClose: true,
+            webPosition: "center");
+
       }
     }
   }

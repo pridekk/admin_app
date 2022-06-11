@@ -76,7 +76,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
                       context: context,
                       builder: (BuildContext context)
                   {
-                    return const PromotionCodeForm();
+                    return PromotionCodeForm();
                   }
                   );
                 },
@@ -176,6 +176,21 @@ class _PromotionCodesState extends State<PromotionCodes> {
             ),
           ),
         ),
+        DataCell(
+           ElevatedButton(
+            child: Icon(Icons.edit_note_rounded ),
+            onPressed: (){
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context)
+                  {
+                    return PromotionCodeForm(code: row);
+                  }
+              );
+            }
+          ),
+
+        )
       ]));
     });
 
@@ -216,6 +231,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
           const DataColumn(
             label: Text('등록수'),
           ),
+          const DataColumn(label: Text("수정"))
         ],
         rows: rows,
       ),
