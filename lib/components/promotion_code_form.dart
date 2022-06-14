@@ -13,9 +13,11 @@ import 'package:provider/provider.dart';
 import '../models/admin_info.dart';
 // Define a custom Form widget.
 class PromotionCodeForm extends StatefulWidget {
-  PromotionCodeForm({super.key, this.code});
+  PromotionCodeForm({super.key, this.code, required this.notifyParent});
 
   PromotionCode? code;
+
+  final Function() notifyParent;
 
   @override
   PromotionCodeFormState createState() {
@@ -231,11 +233,11 @@ class PromotionCodeFormState extends State<PromotionCodeForm> {
         setState(() {
           updated = true;
         });
+        widget.notifyParent();
         navigator.pop();
       }
     } catch(e){
       message = e.toString();
-
     }
 
     Fluttertoast.showToast(

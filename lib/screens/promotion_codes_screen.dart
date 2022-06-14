@@ -27,12 +27,15 @@ class _PromotionCodesState extends State<PromotionCodes> {
   bool _isAscending = true;
   bool isLoaded = false;
   String token = "";
-  @override
-  initState() {
 
-    super.initState();
 
+
+  void reloadPromotionCode(){
+    setState(() {
+      isLoaded = false;
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +79,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
                       context: context,
                       builder: (BuildContext context)
                   {
-                    return PromotionCodeForm();
+                    return PromotionCodeForm(notifyParent: reloadPromotionCode,);
                   }
                   );
                 },
@@ -91,7 +94,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
   Future<List<PromotionCode>> _getPromotionCodeList() async {
     List<PromotionCode> result = <PromotionCode>[];
 
-    var url = Uri.parse('$baseUrl/api/v3/promotions');
+    var url = Uri.parse('$baseUrl/api/v3/promotions?');
 
     var response = await http.get(url, headers: {HttpHeaders.authorizationHeader: "Bearer $token"});
 
@@ -104,19 +107,6 @@ class _PromotionCodesState extends State<PromotionCodes> {
     return result;
   }
 
-  Future<void> _updateEnable(PromotionCode promotionCode) async {
-    var url = Uri.parse(
-        'http://localhost:3001/api/v1/promotions/codes/${promotionCode.id}');
-
-    var jsonData = promotionCode.toJson();
-    debugPrint(jsonData.toString());
-    var response = await http.put(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: json.encode(jsonData),
-    );
-    debugPrint(response.body);
-  }
 
   Widget _getDataTable(List<PromotionCode> listOfData) {
     if (listOfData.length == 0) {
@@ -143,13 +133,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
         DataCell(
           Checkbox(
             value: row.enabled,
-            onChanged: (value) async {
-              row.enabled = !row.enabled;
-              await _updateEnable(row);
-              setState(() {
-                row.enabled = row.enabled;
-              });
-            },
+            onChanged: (value){},
           ),
         ),
         DataCell(
@@ -162,7 +146,6 @@ class _PromotionCodesState extends State<PromotionCodes> {
                       PromotionUsersScreen.routeName,
                       arguments: row
                   );
-
                 },
                 child: Text(
                   "${row.users}",
@@ -184,7 +167,7 @@ class _PromotionCodesState extends State<PromotionCodes> {
                   context: context,
                   builder: (BuildContext context)
                   {
-                    return PromotionCodeForm(code: row);
+                    return PromotionCodeForm(code: row, notifyParent: reloadPromotionCode,);
                   }
               );
             }

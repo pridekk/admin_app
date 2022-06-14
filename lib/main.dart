@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:admin_app/models/promotion_code.dart';
 import 'package:admin_app/screens/filebase_login_screen.dart';
-import 'package:admin_app/screens/pin_plays_screen.dart';
+import 'package:admin_app/screens/pinpaly_detail_screen.dart';
+import 'package:admin_app/screens/pinplays_screen.dart';
 import 'package:admin_app/screens/promotion_codes_screen.dart';
 import 'package:admin_app/screens/promotion_users_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -65,6 +66,13 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                   builder: (context) {
                     return PromotionUsersScreen(promotionCode: code);
+                  });
+            }else if(settings.name == PinPlayDetailScreen.routeName){
+              final int playId = settings.arguments as int;
+
+              return MaterialPageRoute(
+                  builder: (context) {
+                    return PinPlayDetailScreen(playId: playId);
                   });
             }
           },
@@ -236,15 +244,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 controller: page,
                 children: [
-
-                  Container(
-                    color: Colors.white,
-                    child: Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: PromotionCodes()
-
-                    ),
-                  ),
                   Container(
                     color: Colors.white,
                     child: Padding(
@@ -252,6 +251,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: const Center(
                           child: PinPlaysScreen()
                       ),
+                    ),
+                  ),
+                  Container(
+                    color: Colors.white,
+                    child: Padding(
+                        padding: const EdgeInsets.all(30.0),
+                        child: PromotionCodes()
+
                     ),
                   ),
                   Container(

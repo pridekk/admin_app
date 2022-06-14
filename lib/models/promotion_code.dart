@@ -85,7 +85,7 @@ class PromotionCode {
   String getClipboardUserData(){
     var data = "";
     for(SpecUser user in userList){
-      data += user.toString();
+      data += "$user\n";
     }
     return data;
   }

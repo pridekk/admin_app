@@ -1,6 +1,8 @@
 import 'package:intl/intl.dart';
 
-class PinPlay {
+DateFormat format = DateFormat("yyyy-MM-dd");
+
+class Pinplay {
   final int id;
   final String name;
   final String roomType;
@@ -11,10 +13,11 @@ class PinPlay {
   final String createdAt;
   final String startedAt;
   final String endAt;
-  final int masterId;
-  int users = 0;
+  int? masterId;
+  int? users = 0;
+  List<PinplayUser>? userList = [];
   int comments = 0;
-  final int pins;
+  int? pins;
   final String? openedAt;
   String? password;
   int minParticipants = 0;
@@ -40,7 +43,7 @@ class PinPlay {
         break;
     }
   }
-  PinPlay(
+  Pinplay(
     {
       required this.id,
       required this.name,
@@ -57,16 +60,17 @@ class PinPlay {
       this.openedAt,
       this.users = 0,
       this.comments = 0,
+      this.userList
     } );
 
-  factory PinPlay.fromJson(Map<String, dynamic> data) {
+  factory Pinplay.fromJson(Map<String, dynamic> data) {
 
-    DateFormat format = DateFormat("yyyy-MM-dd");
+
     final int id = data['id'] as int;
     String name = data['name'] as String;
-    String roomType = data['private'] as int == 1 ? "개인방" : "공개방";
-    bool isPublic = data['public_display'] as int == 1 ? true : false;
-    bool isDeleted = data['deleted'] as int == 0 ? false : true;
+    String roomType = data['private'] as bool ? "개인방" : "공개방";
+    bool isPublic = data['display'] as bool ? true : false;
+    bool isDeleted = data['deleted'] as bool ? true : false;
 
     String roomStatusString = data['state'] as String;
 
@@ -88,12 +92,17 @@ class PinPlay {
     String createdAt = format.format(DateTime.parse(data['created_at'] as String));
     String startedAt = format.format(DateTime.parse(data['started_at'] as String));
     String endAt = format.format(DateTime.parse(data['ended_at'] as String));
-    int masterId = data['created_by'] as int;
-    int pins = data["pins"] as int;
-    int users = data["users"] as int;
+    int? masterId = data['created_by'] as int?;
+    int? pins = data["pins"] as int?;
+    int? users = data["users"] as int?;
     String? description = data['description'] as String?;
 
-    return PinPlay(
+    var userList = data['user_list'] as Object?;
+
+    if(userList != null){
+
+    }
+    return Pinplay(
       id: id,
       name: name,
       roomType: roomType,
@@ -121,3 +130,26 @@ class PinPlay {
 }
 
 enum RoomStatus { waiting, ready, started, finished, canceled }
+
+
+class PinplayUser{
+  PinplayUser({
+      required this.userId,
+    required this.profit,
+    required this.pinWithinPeriod,
+    required this.joinedAt
+  });
+
+  int userId;
+  double profit;
+  int pinWithinPeriod;
+  DateTime joinedAt;
+
+  factory PinplayUser.fromJson(Map<String, dynamic> data) {
+    int userId = data["user_id"];
+    double profit = data["profit"];
+    int pinWithinPeriod = data["pin_within_period"];
+    DateTime joinedAt = DateTime.parse(data["joined_at"] as String);
+    return PinplayUser(userId: userId, profit: profit, pinWithinPeriod: pinWithinPeriod, joinedAt: joinedAt);
+  }
+}
