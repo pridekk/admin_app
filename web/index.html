@@ -41,18 +41,18 @@
 </head>
 <body>
   <script>
-    window.addEventListener('load', function(ev) {
-      // Download main.dart.js
+      window.addEventListener('load', function(ev) {
+      // Download main.components.js
       _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        }
+      serviceWorker: {
+      serviceWorkerVersion: serviceWorkerVersion,
+      }
       }).then(function(engineInitializer) {
-        return engineInitializer.initializeEngine();
+      return engineInitializer.initializeEngine();
       }).then(function(appRunner) {
-        return appRunner.runApp();
+      return appRunner.runApp();
       });
-    });
+      });
   </script>
 </body>
 </html>

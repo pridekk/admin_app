@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:admin_app/components/pie_chart.dart';
 import 'package:admin_app/components/simple_bar_chart.dart';
 import 'package:admin_app/models/pinplay.dart';
 import 'package:flutter/services.dart';
@@ -9,10 +10,14 @@ import 'dart:convert';
 import 'package:admin_app/models/promotion_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:timelines/timelines.dart';
+import '../components/pinplay_chart.dart';
 import '../config/palette.dart';
 import '../models/admin_info.dart';
 import '../models/spec_user.dart';
+import 'package:admin_app/models/pinplay_user.dart';
 
 
 class PinPlayDetailScreen extends StatefulWidget {
@@ -31,6 +36,9 @@ class _PinPlayDetailScreenState extends State<PinPlayDetailScreen> {
 
   Pinplay? pinplay;
   String token = "";
+  String title = "";
+  int totalPinSet = 0;
+  int pinSetUsers = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -63,35 +71,49 @@ class _PinPlayDetailScreenState extends State<PinPlayDetailScreen> {
       gridView = Center(child: const CircularProgressIndicator());
     } else {
       List<Widget> items = [];
-      debugPrint("users: ${pinplay!.userList.length}");
-      for(PinplayUser user in pinplay!.userList ){
-        debugPrint("adding ${user.userId}");
-        Widget item =
-        SizedBox(
-            width: 40,
-            height: 40,
-            child: Card(
-              margin: const EdgeInsets.all(10),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+
+      List<PinplayUser>? users = pinplay!.userList;
+
+      if(users != null){
+        debugPrint("users: ${users.length}");
+
+        users.sort((a,b) => a.profit.compareTo(b.profit));
+        for(PinplayUser user in users.reversed ){
+
+          if(user.pinWithinPeriod > 0){
+            totalPinSet += user.pinWithinPeriod;
+            pinSetUsers += 1;
+
+            debugPrint("adding ${user.userId}");
+            Widget item =
+            SizedBox(
+                width: 40,
+                height: 40,
+                child: Card(
+                  margin: const EdgeInsets.all(10),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
                       children: [
-                        Text("ID: ${user.userId}"),
-                        Text("수익률: ${user.profit}"),
-                        Text("핀설정횟수: ${user.pinWithinPeriod}"),
-                        Text("참여일: ${user.joinedAt}"),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("ID: ${user.userId}"),
+                            Text("수익률: ${user.profit}"),
+                            Text("핀설정횟수: ${user.pinWithinPeriod}"),
+                            Text("참여일: ${formatDate(user.joinedAt)}"),
+                          ],
+                        )
                       ],
-                    )
-                  ],
-                ),
-              ),
-            )
-        );
-        items.add(item);
+                    ),
+                  ),
+                )
+            );
+            items.add(item);
+          }
+        }
+
       }
 
       gridView = GridView.count(
@@ -107,35 +129,90 @@ class _PinPlayDetailScreenState extends State<PinPlayDetailScreen> {
 
       playInfo = Padding(
         padding: const EdgeInsets.all(8.0),
-          child: Row(
+          child: Column(
             children: [
-              Text(
-                pinplay!.name
-              )
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "신청 인원: ${pinplay!.users}명"
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "핀 설정 인원: $pinSetUsers명"
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "핀 설정 횟수: $totalPinSet"
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                        "시작일: ${pinplay!.startedAt}"
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                        "종료일: ${pinplay!.endAt}"
+                    ),
+                  ),
+                ],
+              ),
+
+                // child: PinplayChart(playId: pinplay!.id)
+                Expanded(child: PieChartSample1())
+
             ],
           )
       );
     }
-
+    title = pinplay?.name?? "";
     return Scaffold(
       appBar: AppBar(
-        title:Text('Pinplay: ${widget.playId}'),
+        title:Text("PinPlay $title"),
         elevation: 0,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
         children: [
           Expanded(
             flex: 3,
             child: playInfo
           ),
-          const Divider(
-            thickness: 3,
-          ),
+
           Expanded(
             flex: 10,
-            child: gridView,
-          )],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: gridView),
+                Expanded(child:Timeline.tileBuilder(
+                  builder: TimelineTileBuilder.fromStyle(
+                    contentsAlign: ContentsAlign.alternating,
+                    contentsBuilder: (context, index) => Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text('Timeline Event $index'),
+                    ),
+                    itemCount: 10,
+                  ),
+                ))
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
@@ -150,6 +227,11 @@ class _PinPlayDetailScreenState extends State<PinPlayDetailScreen> {
 
     return (Pinplay.fromJson(code));
 
+  }
+
+  String formatDate(DateTime date){
+
+    return DateFormat("yyyy-MM-dd").format(date);
   }
 
 }

@@ -1,4 +1,7 @@
+import 'package:admin_app/components/simple_bar_chart.dart';
+import 'package:admin_app/models/pinplay_user.dart';
 import 'package:intl/intl.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 DateFormat format = DateFormat("yyyy-MM-dd");
 
@@ -97,11 +100,16 @@ class Pinplay {
     int? users = data["users"] as int?;
     String? description = data['description'] as String?;
 
-    var userList = data['user_list'] as Object?;
+    var userList = data['user_list'] as List<dynamic>?;
 
-    if(userList != null){
+    List<PinplayUser> playUsers = [];
 
+    if(userList!= null){
+      for (var element in userList) {
+        playUsers.add(PinplayUser.fromJson(element));
+      }
     }
+
     return Pinplay(
       id: id,
       name: name,
@@ -115,7 +123,8 @@ class Pinplay {
       users: users,
       createdAt: createdAt,
       masterId: masterId,
-      pins: pins
+      pins: pins,
+      userList: playUsers
     );
   }
 
@@ -126,30 +135,10 @@ class Pinplay {
         'description': description,
         'max_participants': maxParticipants,
         'min_participants': minParticipants,
-      };
+  };
+
+
 }
 
 enum RoomStatus { waiting, ready, started, finished, canceled }
 
-
-class PinplayUser{
-  PinplayUser({
-      required this.userId,
-    required this.profit,
-    required this.pinWithinPeriod,
-    required this.joinedAt
-  });
-
-  int userId;
-  double profit;
-  int pinWithinPeriod;
-  DateTime joinedAt;
-
-  factory PinplayUser.fromJson(Map<String, dynamic> data) {
-    int userId = data["user_id"];
-    double profit = data["profit"];
-    int pinWithinPeriod = data["pin_within_period"];
-    DateTime joinedAt = DateTime.parse(data["joined_at"] as String);
-    return PinplayUser(userId: userId, profit: profit, pinWithinPeriod: pinWithinPeriod, joinedAt: joinedAt);
-  }
-}

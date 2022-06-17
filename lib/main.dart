@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:admin_app/color_schemes.g.dart';
 import 'package:admin_app/models/promotion_code.dart';
 import 'package:admin_app/screens/filebase_login_screen.dart';
 import 'package:admin_app/screens/pinpaly_detail_screen.dart';
@@ -9,7 +10,6 @@ import 'package:admin_app/screens/promotion_users_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:admin_app/firebase_options.dart';
@@ -57,8 +57,14 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'SPEC ADMIN',
           theme: ThemeData(
-            primarySwatch: Colors.blue,
+            useMaterial3: true,
+            colorScheme: lightColorScheme
           ),
+          darkTheme: ThemeData(
+              useMaterial3: true,
+              colorScheme: darkColorScheme
+          ),
+          themeMode: ThemeMode.system,
           onGenerateRoute: (settings){
             if(settings.name == PromotionUsersScreen.routeName){
               final PromotionCode code = settings.arguments as PromotionCode;
@@ -83,10 +89,14 @@ class MyApp extends StatelessWidget {
                   expiredAt: "2022-09-01", users: 30, enabled: true, userList: [], description: "");
               return PromotionUsersScreen(promotionCode: code);
             },
+            "/pinplay_detail": (context){
+              return PinPlayDetailScreen(playId: 337);
+            },
           },
-          initialRoute: "/",
+          initialRoute: "/pinplay_detail",
 
           debugShowCheckedModeBanner: false,
+
         )
       );
   }
@@ -106,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool isLoggedIn = false;
   String token = '';
-
+  int currentPageIndex = 0;
   late StreamSubscription<User?> user;
 
   @override
@@ -159,85 +169,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     } else {
-      main =Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SideMenu(
-            controller: page,
-            onDisplayModeChanged: (mode) {
-              print(mode);
-            },
-            style: SideMenuStyle(
-              displayMode: SideMenuDisplayMode.auto,
-              hoverColor: Colors.blue[100],
-              selectedColor: Colors.lightBlue,
-              selectedTitleTextStyle: const TextStyle(color: Colors.white),
-              selectedIconColor: Colors.white,
-              // decoration: BoxDecoration(
-              //   borderRadius: BorderRadius.all(Radius.circular(10)),
-              // ),
-              // backgroundColor: Colors.blueGrey[700]
-            ),
-            footer: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                'pridekk@gmail.com',
-                style: TextStyle(fontSize: 15),
-              ),
-            ),
-            items: [
-              SideMenuItem(
-                priority: 0,
-                title: '프로모션',
-                onTap: () {
-                  page.jumpToPage(0);
-                },
-                icon: const Icon(Icons.ads_click),
-              ),
-              SideMenuItem(
-                priority: 1,
-                title: '핀플레이',
-                onTap: () {
-                  page.jumpToPage(1);
-                },
-                icon: const Icon(Icons.pin_drop),
-              ),
-
-              SideMenuItem(
-                priority: 2,
-                title: 'Files',
-                onTap: () {
-                  page.jumpToPage(2);
-                },
-                icon: const Icon(Icons.file_copy_rounded),
-              ),
-              SideMenuItem(
-                priority: 3,
-                title: 'Download',
-                onTap: () {
-                  page.jumpToPage(3);
-                },
-                icon: const Icon(Icons.download),
-              ),
-              SideMenuItem(
-                priority: 4,
-                title: 'Settings',
-                onTap: () {
-                  page.jumpToPage(4);
-                },
-                icon: const Icon(Icons.settings),
-              ),
-              SideMenuItem(
-                priority: 6,
-                title: 'Logout',
-                onTap: () async {
-                  logout();
-                },
-                icon: const Icon(Icons.exit_to_app),
-              ),
-            ],
-          ),
+      main =Center(
+        child:
           Expanded(
             child: SizedBox(
               child: PageView(
@@ -291,10 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
-          ),
-
-
-        ],
+          )
       );
     }
 
@@ -302,11 +232,45 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
 
       appBar: AppBar(
-        title: Text('${widget.title}-${dotenv.env["MODE"]}'),
+        title: Text('${widget.title}'),
         elevation: 0,
         centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: logout,
+              tooltip: "Logout",
+              icon: const Icon(Icons.logout)
+          )
+        ],
       ),
-      body:  main
+      body:  main,
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+            if(index < 2){
+              page.jumpToPage(index);
+            }
+
+          });
+        },
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            icon: Icon(Icons.ads_click),
+            label: '프로모션',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.pin_drop),
+            label: '핀플레이',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.visibility ),
+            label: '테마관리',
+          ),
+
+        ],
+      ),
     );
   }
 }
